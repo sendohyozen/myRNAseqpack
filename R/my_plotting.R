@@ -38,7 +38,8 @@ my_vocano1 = function(DEG.data, x, y, group,
     p =  ggplot(data=plot_df, aes(x=logFC, y=log10P, colour=Dif, fill=Dif)) +
         scale_color_manual(values = pal[1:3]) +
         geom_point(alpha=0.4, size=1) +
-        ggrepel::geom_text_repel(aes(logFC, log10P, label= labs), size=3) +
+        ggrepel::geom_text_repel(aes(logFC, log10P, label= labs), size=3,
+                                 show.legend  = F) + # remove a in the legend
         ggtitle(title) +  xlab(x.name) +  ylab(y.name)
 
     p = p + geom_vline(xintercept=c(-x_intercept,  x_intercept),lty=4,col="black",lwd=0.4) +
