@@ -13,14 +13,19 @@ RoxygenNote: 7.2.3
 biocViews:
 Imports: 
     clusterProfiler,
+    DESeq2,
     dplyr,
+    edgeR,
     factoextra,
     FactoMineR,
+    GenomicFeatures,
     ggplot2,
     ggrepel,
     ggsci,
     GSEABase,
     GseaVis,
     GSVA,
+    IRanges,
+    limma,
     org.Hs.eg.db,
     tidyr
