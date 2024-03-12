@@ -158,7 +158,7 @@ GSEA_barplot2 <- function(GESA.res, top=30,
                           text.size=4, xlab.size=15, legendtext.size=12){
     ## data
     dat = GESA.res@result
-    colnames(dat)
+    # colnames(dat)
 
     dat = dat %>% mutate(pathID = str_split(Description, pattern = '_', n = 2, simplify = T)[ ,2]) %>%
         mutate(Description = str_replace_all(pathID, pattern = '_', replacement = ' '))
@@ -203,4 +203,77 @@ GSEA_barplot2 <- function(GESA.res, top=30,
 
     return(p)
 }
+
+
+
+
+
+
+
+#' GSEA presented as chicklet-barplot ; given top pathways arranged by pvalue, pathway name beside the bar
+#'
+#' @param GESA.res gsea result object, not a data frame!
+#' @param top number of top pathways picked, default 30
+#' @param pal color palette represent for up or down regulation; down as the first color; up as the second color ;default pal_simpsons
+#' @param text.size text size of pathway names,default 3
+#' @param xlab.size text size of xlab,default 15
+#' @param legendtext.size text size of legend,default 12
+#'
+#' @return chicklet-bar plot of GSEA result
+#' @export
+#'
+#' @examples GSEA_chickletBar(GESA.res, top=30)
+GSEA_chickletBar <- function(GESA.res, top=30,
+                          pal=ggsci::pal_simpsons()(2),
+                          text.size=3, xlab.size=15, legendtext.size=12){
+    ## data
+    dat = GESA.res@result
+
+    dat = dat %>% mutate(pathID = str_split(Description, pattern = '_', n = 2, simplify = T)[ ,2]) %>%
+        mutate(Description = str_replace_all(pathID, pattern = '_', replacement = ' '))
+
+    ## color for up or down regulation
+    dat$color = ifelse(dat$NES > 0, 'up', 'down')
+    dat$color = factor(dat$color,  levels = c('up', 'down'))
+
+    ## top 30 pathways, arranged by pvalue,than ranged by NES
+    dat = dat %>% arrange(pvalue) %>% .[1:top, ] %>%
+        arrange(NES) %>% as.data.frame()
+    # factor levels for lab order
+    dat$pathID = factor(dat$pathID, levels = dat$pathID)
+    # Max lab for border of the plot axis
+    max.value = ceiling(max(abs(dat$NES)))
+
+    ## plotting
+    p = ggplot(dat, mapping = aes(x = reorder(pathID, order(NES, decreasing = F)), # works only data previously arranged
+                                  y = NES)) +
+        # base color
+        ggchicklet::geom_chicklet(aes(y = ifelse(NES>0, max.value, -max.value),
+                          fill= color), alpha = 0.2) +
+        scale_fill_manual(values = c('up'=pal[2], 'down'=pal[1])) +
+        # bar color
+        ggchicklet::geom_chicklet(aes(fill= color), colour = 'black', alpha=0.8) +
+        scale_fill_manual(values = c('up'=pal[2], 'down'=pal[1])) +
+        # text , decided by NES
+        # a start position 0.1 for negative text,; -0.1 for positvie text
+        # allign for hjust : 0 , left allign for negative; 1 right allign for positive text
+        geom_text(aes(x = pathID,
+                      y = ifelse(NES > 0,  -0.1, 0.1),
+                      label = pathID,
+                      colour = color,
+                      hjust= ifelse(NES>0, 1, 0)),
+                  size = text.size,
+                  show.legend  = F) +  # remove a in the legend
+        scale_color_manual(values = c('up'=pal[2], 'down'=pal[1])) +
+
+        # theme
+        theme_classic(base_size = xlab.size) +
+        theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.line.y = element_blank(),
+              legend.position = "bottom", legend.text=element_text(size=legendtext.size), legend.title = element_blank()) +
+        labs(x = NULL, y='NES') +
+        coord_flip()
+
+    return(p)
+}
+
 

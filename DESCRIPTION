@@ -19,6 +19,7 @@ Imports:
     factoextra,
     FactoMineR,
     GenomicFeatures,
+    ggchicklet,
     ggplot2,
     ggrepel,
     ggsci,

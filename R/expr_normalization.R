@@ -30,6 +30,29 @@ countMatrix_norm <- function(count.matrix, DESeq=FALSE){
 
 
 
+#' Limit max or min value in the matrix
+#' @d@description
+#' Cap values in a numeric matrix at a specific value for heatmap visulization
+#'
+#'
+#' @param m normalized or scalized matrix of exprSet
+#' @param max.z max z score
+#'
+#' @return  limit max value to max.z p; min value to -max.z
+#' @export
+#'
+#' @examples limitRange(matirx, max.z = 3)
+limitRange <- function( m, max.z = 3){
+    m[ m > max.z] <- max.z
+    m[ m < -max.z] <- -max.z
+    return(m)
+}
+
+
+
+
+
+
 #' get a dataframe of gene length from a GTF file
 #'
 #' @param gtf.file.path the file path of target GTF file

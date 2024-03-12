@@ -1,3 +1,91 @@
+#' theme set with 4 axis line around, based on theme_bw
+#'
+#' @param legend.position legend position
+#' @param baseSize base text size
+#' @param legendSize legend size
+#' @param xSize x lab size
+#' @param ySize y lab size
+#' @param x.angle x lab angle
+#' @param x.vjust x lab vertical position
+#'
+#' @return a ggplot theme object
+#' @export
+#'
+#' @examples my_themeFULL(); my_themeFULL(legend.position = 'top')
+my_themeFULL = function(legend.position="right",
+                        baseSize = 8, legendSize = 8, xSize = 10, ySize =10,
+                        x.angle= 0, x.vjust = 0.5){
+    # base size
+    themeFULL = theme_bw(base_size = baseSize, base_family = "Arial") +
+        # legend
+        theme(legend.position=legend.position,
+              panel.grid=element_blank(),
+              legend.title = element_blank(),
+              legend.text= element_text(color="black", size=legendSize),
+              # title
+              plot.title = element_text(hjust = 0.5),
+              # axis
+              axis.text.x = element_text(color="black", size= xSize, angle = x.angle, vjust = x.vjust), # x lab
+              axis.text.y = element_text(color="black", size= ySize), # y lab
+              axis.title.x = element_text(color="black"),
+              axis.title.y = element_text(color="black"))
+
+    return(themeFULL)
+}
+
+
+
+#' theme set with 2 axis line around ,bottom and left
+#'
+#' @param legend.position legend position
+#' @param titleSize title text size
+#' @param legendSize legend size
+#' @param xlab.Size x lab size
+#' @param ylab.Size y lab size
+#' @param x.title.Size x axis title size
+#' @param y.title.Size y axis title size
+#' @param xlab.angle x lab angle
+#' @param x.vjust x lab vertical position
+#'
+#' @return a ggplot theme object
+#' @export
+#'
+#' @examples my_themeHALF(); my_themeHALF(legend.position = 'top')
+my_themeHALF = function(legend.position = "bottom",
+                        titleSize = 15, legendSize = 8,
+                        xlab.Size = 10, ylab.Size =10,
+                        x.title.Size = 12, y.title.Size =12,
+                        xlab.angle= 0, x.vjust = 0.5){
+
+    # font config for x,y lab, title
+    axis_theme <- theme(plot.title = element_text(colour = "black", face = "bold", size = titleSize, hjust = 0.5), # hjust horizon position
+                        axis.text.x = element_text(angle = xlab.angle, hjust = 0.5, vjust = x.vjust, color = "black", size=xlab.Size),
+                        axis.text.y = element_text(color = "black",size = ylab.Size),
+                        axis.title.x = element_text(color = "black",size = x.title.Size),
+                        axis.title.y = element_text(color = "black",size = y.title.Size)
+    )
+    # background
+    bg_theme <- theme(panel.background = element_rect(fill='transparent'),  # transparent background
+                      panel.grid = element_blank(),                         # no gird
+                      panel.border = element_blank(),                     # no border line
+                      axis.line = element_line(colour = "black", size=0.8))   # axis line
+    # lengend
+    leg_theme <- theme(legend.text= element_text(color="black", size=legendSize),
+                       legend.key = element_blank(),  # remove the gray background on legend fig
+                       legend.title = element_blank(),
+                       legend.position = legend.position )
+
+    # return theme
+    return(axis_theme + bg_theme + leg_theme)
+}
+
+
+
+
+
+
+
+
 #' vocano plot for DEG dataframe
 #'
 #' @param DEG.data  DEG dataframe (rownanmes genesymbol; colnames including log2FoldChange(need log2 transformed), pvalue raw value)
@@ -22,7 +110,7 @@ my_vocano1 = function(DEG.data, x, y, group,
                       title='', x.name='log2 (Fold Change)', y.name='-log10 (P-value)',
                       lab_text='', x_intercept = 1, y_intercept = -log10(0.05),
                       pal = ggsci::pal_jco(alpha = 0.7)(9),
-                      plot_theme){
+                      plot_theme ){
     ## DEG data processing
     Symbol = rownames(DEG.data)
     logFC = DEG.data[[x]]
@@ -47,8 +135,11 @@ my_vocano1 = function(DEG.data, x, y, group,
 
 
     # adding theme if given
-    if (!missing(plot_theme)) {
-        p = p + plot_theme}
+    if (!missing(plot_theme)){
+        p = p + plot_theme
+    }else{
+        p = p + myRNAseq::my_themeHALF()
+        }
 
     return(p)
     }
@@ -81,7 +172,7 @@ my_barplot_long = function(df, x, y, group, title='', x.name='', y.name='',
                            x_level, group_level,
                            text_adding = T, text_size = 5,
                            pal = ggsci::pal_jco(alpha = 0.7)(9),
-                           plot_theme){
+                           plot_theme ){
     ## plot data
     df = as.data.frame(df)
     x_value = df[[x]]
@@ -111,7 +202,10 @@ my_barplot_long = function(df, x, y, group, title='', x.name='', y.name='',
 
     # adding theme if given
     if (!missing(plot_theme)) {
-        p = p + plot_theme}
+        p = p + plot_theme
+    }else{
+        p = p + myRNAseq::my_themeFULL()
+        }
 
     return(p)
 }
@@ -147,7 +241,7 @@ my_boxplot_long = function(df, x, y, group, title='', x.name='', y.name='',
                            pair_lab,
                            jitter.point = T, jitter.size = 1,
                            pal = ggsci::pal_jco(alpha = 0.7)(9),
-                           plot_theme){
+                           plot_theme ){
     ## plot data
     df = as.data.frame(df)
     x_value = df[[x]]
@@ -187,7 +281,10 @@ my_boxplot_long = function(df, x, y, group, title='', x.name='', y.name='',
 
     # adding theme if given
     if (!missing(plot_theme)) {
-        p = p + plot_theme}
+        p = p + plot_theme
+    }else{
+        p = p + myRNAseq::my_themeFULL()
+        }
 
     return(p)
 }
