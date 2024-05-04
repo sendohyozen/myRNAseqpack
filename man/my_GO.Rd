@@ -12,7 +12,7 @@ my_GO(DEG.genes, background.genes)
 \item{background.genes}{background gene symbols ,default not provide}
 }
 \value{
-a list consists of GO result objects, inculuding BP, MF, CC
+a list consists of GO result objects, inculuding all, BP, MF, CC
 }
 \description{
 GO analysis for human gene symbols; human only!

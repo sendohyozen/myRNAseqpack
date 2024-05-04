@@ -339,3 +339,127 @@ my_bublePlot = function(df, x, y, size, color,
 }
 
 
+
+
+#' matchstick_plot for go,kegg,gsea... analysis
+#'
+#' @param df dataframe of go, kegg,... results
+#' @param top top term picked for plotting , arranged by count and pvalue , default top 20
+#' @param y.decreasing if arranged the sticked with derceasing order, default T
+#' @param logPV10 if use the -log10pvalue for filling colors, default T
+#' @param x column name of x axis data, (the plot is coordfliped) default Description
+#' @param y column name of y axis data, (the plot is coordfliped) default count
+#' @param size column name of point size, default count
+#' @param fill_col column name of filling color, default pvalue
+#' @param fill_col_pal color palette of the bulbe color; a vector consists of two numbers, the fisrt for low , the second for high;
+#' @param stick_col color of the stick
+#' @param stick_width width of the stick, default 2
+#' @param title title of the plot, default NULL
+#' @param xlab x lab of the plot, default NULL
+#' @param ylab y lab of the plot, default 'Gene Counts'
+#' @param x.lab.size text size of the x labs, default 14
+#' @param x.lab.angle text angle of the x labs, default 0
+#' @param y.lab.size text size of the y labs, default 14
+#' @param y.lab.angle text angle of the y labs, default 0
+#' @param x.title.size text size of the x lab title, default 18
+#' @param y.title.size text size of the y lab title, default 18
+#' @param title.size text size of the plot title, default 20
+#' @param col.limits limit number of the color bar, default NULL, if given, a vector consists of two numbers, the fisrt for min , the second for max
+#' @param col.breaks break numbers of the color bar, if given, a vector consists of numbers, notes the numbers in the limits
+#' @param col.labels labs of the break numbers , be consistent with the col.breaks
+#' @param size.limits limit number of the size bar, default NULL, if given, a vector consists of two numbers, the fisrt for min , the second for max
+#' @param size.breaks break numbers of the size bar, if given, a vector consists of numbers, notes the numbers in the limits
+#' @param size.labels labs of the break numbers , be consistent with the size.breaks
+#'
+#' @return a ggplot2 object of matchstick plot
+#' @export
+#'
+#' @examples my_matchstick_plot(df = GOdatframe, top = 20, y.decreasing = T,
+#' x = 'Description', y = 'Count', size = 'Count', fill_col = 'pvalue',
+#' col.breaks = c(3,4,5) , col.labels = c('low', '', 'high'),size.limits = c(20,40), size.breaks = c(20,30,40))
+
+my_matchstick_plot <- function(df,  top=20, y.decreasing = T, logPV10 = T,
+                               x='Description', y="count", size="count", fill_col="pvalue",
+                               fill_col_pal = c("#BDD8E8", "#134B6C"), stick_col = "#FAAC90", stick_width=2,
+                               title =NULL, xlab = NULL, ylab = "Gene counts",
+                               x.lab.size=14, x.lab.angle=0, y.lab.size =14, y.lab.angle=0, x.title.size=18, y.title.size=18, title.size=20,
+                               col.limits=NULL, col.breaks, col.labels,
+                               size.limits=NULL, size.breaks, size.labels){
+
+    ## plot data
+    plot_df = data.frame(x_value = df[[x]],
+                         y_value = df[[y]],
+                         size_value =  df[[size]],
+                         fill_col_value = df[[fill_col]])
+
+
+    if(logPV10 == T){
+        plot_df = plot_df %>% as.data.frame() %>% mutate(fill_col_value = -log10(fill_col_value))
+        color.title = '-log10(pvalue)'
+
+    }else{
+        color.title = fill_col
+        warning('Do not need to calculate the -log10(Pvalue) ? \n')
+    }
+
+    # arranged by decreasing y value (count) and pvalue
+    plot_df = plot_df %>% arrange(desc(y_value), desc(fill_col_value)) %>% head(top) %>% as.data.frame()
+
+    if(y.decreasing == T){
+        # ordered x names
+        plot_df$x_value = factor(plot_df$x_value, levels = rev(plot_df$x_value))
+    }else{
+        plot_df$x_value = factor(plot_df$x_value, levels = plot_df$x_value)
+    }
+
+
+
+
+    # plotting
+    p <- ggplot(plot_df, aes(x=x_value, y=y_value)) +
+        geom_segment(aes(x = x_value, xend = x_value,
+                         y = 0, yend = y_value),
+                     linewidth = stick_width,
+                     color = stick_col,
+                     linetype="solid") +
+        geom_point(aes(color = fill_col_value,
+                       size = size_value)) +
+        scale_color_continuous(low = fill_col_pal[1], high = fill_col_pal[2]) +
+        labs(x = xlab, y = ylab, title = title, color=color.title, size = size) +
+        coord_flip()
+
+    # set break points for continuous color bar
+    if(!missing(col.breaks)){
+        # defualt break = labs
+        if(missing(col.labels)){
+            col.labels = col.breaks
+        }
+
+        p = p + scale_color_gradient(low = fill_col_pal[1], high = fill_col_pal[2],
+                                     limits = col.limits,
+                                     breaks = col.breaks,
+                                     labels = col.labels)
+    }
+
+    # set break points for continuous size bar
+    if(!missing(size.breaks)){
+        # defualt break = labs
+        if(missing(size.labels)){
+            size.labels = size.breaks
+        }
+        p = p + scale_size(limits = size.limits,
+                           breaks = size.breaks,
+                           labels = size.labels)
+    }
+
+    # theme
+    p = p + theme_classic() +
+        theme(plot.title = element_text(size = title.size, hjust=0.5),
+              axis.text.x = element_text(size= x.lab.size, angle = x.lab.angle, vjust = 1),
+              axis.text.y = element_text(size= y.lab.size, angle = y.lab.angle),
+              axis.title.x = element_text(size = x.title.size),
+              axis.title.y = element_text(size = y.title.size))
+
+    return(p)
+}
+

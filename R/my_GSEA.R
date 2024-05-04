@@ -193,11 +193,11 @@ GSEA_barplot2 <- function(GESA.res, top=30,
     ## adding pathway names # see depmap project file 01_
     p <- p + geom_text(data = subset(dat, NES < 0),
                        mapping = aes(label = Description, x = Description, y = 0.1, colour = color),
-                       angle = 0, hjust = "outward", size = text.size, show.legend  = F) +
+                       angle = 0, hjust = 0, size = text.size, show.legend  = F) +
 
              geom_text(data = subset(dat, NES >= 0),
                        mapping = aes(label = Description, x = Description, y =  -0.1, colour = color),
-                       angle = 0, hjust = "outward",  size = text.size, show.legend  = F) +
+                       angle = 0, hjust = 1,  size = text.size, show.legend  = F) +
         scale_color_manual(values = c('up'=pal[2], 'down'=pal[1]))
 
 
