@@ -10,7 +10,9 @@ GSVA_barplot1(
   pV = 0.05,
   addline = F,
   axis_need_color = T,
-  palettes = c("#008020", "#808080", "#08519C")
+  palettes = c("#008020", "#808080", "#08519C"),
+  title = "GSVA",
+  legend.position = "right"
 )
 }
 \arguments{
@@ -25,6 +27,10 @@ GSVA_barplot1(
 \item{axis_need_color}{if adding color on the axis lab of pathway name; showing up or down}
 
 \item{palettes}{color palettes as down, stable, up}
+
+\item{title}{title of the plot default GSVA}
+
+\item{legend.position}{the position of the legend ,default right}
 }
 \value{
 bar plot of DEG using limma from a GSVA score matrix

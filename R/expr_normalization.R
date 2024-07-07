@@ -87,27 +87,64 @@ gene_length <- function(gtf.file.path){
 
 
 
-#' Transform count matrix to tmp matrix
+#' Transform count matrix to TPM matrix
 #'
-#' @param count.matrix raw count matrix (genes are rows, columns are samples); rownames are esemble ID
-#' @param gene.length.ob object get from gene_length function; a dataframe of geneID(esmbleID) and gene length; rownames are esemble ID
+#' @param esemble.length.df data frame object get from gene_length function; a dataframe of geneID(esmbleID) and gene length; rownames are esemble ID
+#' @param RownameIsSymbol if the count matrix given have rownames as gene symble, default F
+#' @param gtf.file.path Only needed if gene symbol is given as rownames; the file path of target GTF file; default NULL
+#' @param count.matrix raw count matrix (genes are rows, columns are samples); rownames are esemble ID/gene symbol
 #'
 #' @return a tpm matrix (genes are rows, columns are samples); rownames are esemble ID
 #' @export
 #'
-#' @examples counts2TPM(count.matrix, gene.length.ob)
-counts2TPM <- function(count.matrix, gene.length.ob){
+#' @examples  counts2TPM(count.matrix = exprSet, esemble.length.df = gene_length, RownameIsSymbol = T, gtf.file.path = '../../!公共资源/gencode.v36.annotation.gtf.gz')
+counts2TPM <- function(count.matrix, esemble.length.df, RownameIsSymbol=F, gtf.file.path){
+
+    # count 矩阵必须全为数字，行为基因名或id，列为样本
+    cat('the count matrix must be numeric, gene symbol/esemble ID in the rows, and sample names in the column! \n')
+    is_numeric_df <- function(df) {
+        all_numeric <- sapply(df, is.numeric)
+        return(all(all_numeric))
+    }
+
+    stopifnot(is_numeric_df(count.matrix))
+
+
+    # count矩阵行名是否为gene symbol需要对长度数据框进行调整
+    if(RownameIsSymbol==T){
+
+        # 强制对表达矩阵的基因行名取大写（genesymbol正式gtf文件中都是大写）
+        rownames(count.matrix) = toupper(rownames(count.matrix))
+
+
+        cat('the count matrix give rownames as gene symbol! must give gtf file path for id transformation! \n')
+
+        ids = esmble2symbol(gtf.file.path = gtf.file.path)
+
+        gene.length.ob = esemble.length.df %>% left_join(ids, by = c('esmID'='Esemble'))  %>%
+            select(genSymbol, effLenth) %>%
+            distinct(genSymbol, .keep_all = T) %>%
+            column_to_rownames('genSymbol') %>%
+            mutate(genesymbol = rownames(.)) %>%
+            as.data.frame()
+
+    }else{
+        cat('the count matrix give rownames as esemble ID!  \n')
+        gene.length.ob = as.data.frame(esemble.length.df)
+    }
+
 
     ## common genes
     gene = intersect(rownames(count.matrix), rownames(gene.length.ob))
+    cat(paste0(length(gene)), ' genes could be transformed from count to tpm!!\n')
 
     ## consistant dataframe using common genes
     tmp.count =  data.frame(count.matrix[gene, ], check.names = F)
-    tmp.length = gene.length.ob[gene, ]
+    tmp.length = data.frame(gene.length.ob[gene, ], check.names = F)
 
-    ## if the gene orders is consistant
+    ## if the gene orders is consistant (gene.length.ob 对象不能是单列，否则会被转成向量，丢失行名)
     if(identical(rownames(tmp.count),  rownames(tmp.length))){
-        cat('count matrix and gene lenth dataframe is in the same order! Must in esemble ID!')
+        cat('count matrix and gene lenth dataframe is in the same order!')
     }else{
         stop( "not consistant data!" )
     }
@@ -124,6 +161,8 @@ counts2TPM <- function(count.matrix, gene.length.ob){
 
     return(expr.TPM)
 }
+
+
 
 
 

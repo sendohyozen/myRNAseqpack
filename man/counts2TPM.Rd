@@ -2,21 +2,25 @@
 % Please edit documentation in R/expr_normalization.R
 \name{counts2TPM}
 \alias{counts2TPM}
-\title{Transform count matrix to tmp matrix}
+\title{Transform count matrix to TPM matrix}
 \usage{
-counts2TPM(count.matrix, gene.length.ob)
+counts2TPM(count.matrix, esemble.length.df, RownameIsSymbol = F, gtf.file.path)
 }
 \arguments{
-\item{count.matrix}{raw count matrix (genes are rows, columns are samples); rownames are esemble ID}
+\item{count.matrix}{raw count matrix (genes are rows, columns are samples); rownames are esemble ID/gene symbol}
 
-\item{gene.length.ob}{object get from gene_length function; a dataframe of geneID(esmbleID) and gene length; rownames are esemble ID}
+\item{esemble.length.df}{data frame object get from gene_length function; a dataframe of geneID(esmbleID) and gene length; rownames are esemble ID}
+
+\item{RownameIsSymbol}{if the count matrix given have rownames as gene symble, default F}
+
+\item{gtf.file.path}{Only needed if gene symbol is given as rownames; the file path of target GTF file; default NULL}
 }
 \value{
 a tpm matrix (genes are rows, columns are samples); rownames are esemble ID
 }
 \description{
-Transform count matrix to tmp matrix
+Transform count matrix to TPM matrix
 }
 \examples{
-counts2TPM(count.matrix, gene.length.ob)
+ counts2TPM(count.matrix = exprSet, esemble.length.df = gene_length, RownameIsSymbol = T, gtf.file.path = '../../!公共资源/gencode.v36.annotation.gtf.gz')
 }

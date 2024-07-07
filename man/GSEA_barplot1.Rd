@@ -7,7 +7,9 @@
 GSEA_barplot1(
   GESA.res,
   top = 30,
-  pal = (ggsci::pal_lancet(palette = c("lanonc"), alpha = 0.6))(9)
+  pal = (ggsci::pal_lancet(palette = c("lanonc"), alpha = 0.6))(9),
+  title = "GSEA",
+  legend.position = "right"
 )
 }
 \arguments{
@@ -16,6 +18,10 @@ GSEA_barplot1(
 \item{top}{number of top pathways picked, default 30}
 
 \item{pal}{color palette represent for up or down regulation; down as the first color; up as the second color ;default in 'lanonc' pal}
+
+\item{title}{title of the plot , default GSEA}
+
+\item{legend.position}{position of the legend, default right}
 }
 \value{
 bar plot of GSEA result

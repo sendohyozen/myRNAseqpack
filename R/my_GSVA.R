@@ -42,6 +42,8 @@ my_GSVA_analysis <- function(exprSet, GMTfile){
 #' @param addline if adding a helping line
 #' @param axis_need_color if adding color on the axis lab of pathway name; showing up or down
 #' @param palettes color palettes as down, stable, up
+#' @param title title of the plot default GSVA
+#' @param legend.position the position of the legend ,default right
 #'
 #' @return bar plot of DEG using limma from a GSVA score matrix
 #' @export
@@ -49,7 +51,8 @@ my_GSVA_analysis <- function(exprSet, GMTfile){
 #' @examples GSVA_barplot1(gsvaScore.limma.DEG)
 GSVA_barplot1 <- function(gsvaScore.limma.DEG, logFC=0.2, pV=0.05,
                         addline = F,  axis_need_color = T,
-                        palettes = c("#008020","#808080", "#08519C") ){
+                        palettes = c("#008020","#808080", "#08519C"),
+                        title = 'GSVA', legend.position = 'right' ){
 
     ## use the function in the same package, :: needed or not?
     df = DEGsig(df = gsvaScore.limma.DEG,
@@ -79,7 +82,7 @@ GSVA_barplot1 <- function(gsvaScore.limma.DEG, logFC=0.2, pV=0.05,
     p = ggplot(df.sort, aes(x = ID, y = FC, fill = group)) +
         geom_bar(stat = 'identity',alpha = 0.7) +
         theme_bw() +
-        theme(legend.position="top",
+        theme(legend.position= legend.position,
               legend.title = element_blank(),
               panel.grid =element_blank(),
               legend.text= element_text(color="black", size=12),
@@ -89,7 +92,7 @@ GSVA_barplot1 <- function(gsvaScore.limma.DEG, logFC=0.2, pV=0.05,
               axis.title.x = element_text(color="black", size=12),
               axis.title.y = element_text(color="black", size=12)) +
         theme(panel.border = element_rect(size = 0.6)) +
-        ggtitle('GSVA') +  xlab('log2FC') +  ylab('') +
+        ggtitle(title) +  xlab(NULL) +  ylab('log2FC') +
         scale_fill_manual(values = palettes) +
         coord_flip()
 

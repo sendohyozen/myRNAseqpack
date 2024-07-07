@@ -101,13 +101,16 @@ my_GSEAPlot <- function(path, GSEA_Object, leading_genes){
 #' @param GESA.res gsea result object, not a data frame!
 #' @param top  number of top pathways picked, default 30
 #' @param pal color palette represent for up or down regulation; down as the first color; up as the second color ;default in 'lanonc' pal
+#' @param title title of the plot , default GSEA
+#' @param legend.position position of the legend, default right
 #'
 #' @return bar plot of GSEA result
 #' @export
 #'
 #' @examples my_GSEA_barplot1(GSEAres)
 GSEA_barplot1 <- function(GESA.res, top=30,
-                             pal=ggsci::pal_lancet(palette = c("lanonc"), alpha = 0.6)(9)){
+                          pal=ggsci::pal_lancet(palette = c("lanonc"), alpha = 0.6)(9),
+                          title = 'GSEA', legend.position = 'right' ){
 
     dat = GESA.res@result
     colnames(dat)
@@ -129,8 +132,14 @@ GSEA_barplot1 <- function(GESA.res, top=30,
                                          fill = color)) +
         geom_col() +
         coord_flip() +
-        scale_fill_manual(values = c('up'=pal[2], 'down'=pal[1])) +
-        theme_bw() + xlab("")
+        scale_fill_manual(values = c('up'=pal[2], 'down'=pal[1]))
+
+    p = p + ggtitle(title) + xlab("") +
+        theme_bw() +
+        theme(legend.position= legend.position,
+            legend.title = element_blank(),
+            axis.title.y = element_blank())
+
 
     return(p)
 
